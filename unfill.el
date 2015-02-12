@@ -10,6 +10,20 @@
 
 ;; This file is NOT part of GNU Emacs.
 
+(defun modi/fill-paragraph (&optional beg end)
+  "Make `fill-paragraph' fill the selected region instead of `fill-region'.
+Reason: `fill-paragraph' fills the comment regions correctly, `fill-region'
+does not."
+  (interactive "r")
+  (save-excursion
+    (if (use-region-p)
+        (progn
+          (narrow-to-region beg end)
+          (goto-char (point-min))
+          (fill-paragraph)
+          (widen))
+      (fill-paragraph))))
+
 ;;;###autoload
 (defun unfill-paragraph ()
   "Replace newline chars in current paragraph by single spaces.
@@ -24,7 +38,7 @@ This command does the inverse of `fill-paragraph'."
 This command does the inverse of `fill-region'."
   (interactive "r")
   (let ((fill-column most-positive-fixnum))
-    (fill-region start end)))
+    (modi/fill-paragraph start end)))
 
 ;;;###autoload
 (defun toggle-fill-unfill ()
@@ -37,15 +51,16 @@ This command does the inverse of `fill-region'."
     (save-excursion
       ;; Determine whether the text is currently compact.
       (setq currentStateIsCompact
-            (if (eq last-command this-command)
+            (if (eq last-command (or 'hydra-toggle/body
+                                     this-command))
                 (get this-command 'stateIsCompact-p)
               (if (> (- (line-end-position) (line-beginning-position)) fill-column) t nil) ) )
 
       (if (use-region-p)
           (if currentStateIsCompact
-              (fill-region (region-beginning) (region-end))
+              (modi/fill-paragraph (region-beginning) (region-end))
             (let ((fill-column bigFillColumnVal))
-              (fill-region (region-beginning) (region-end))) )
+              (modi/fill-paragraph (region-beginning) (region-end))) )
         (if currentStateIsCompact
             (fill-paragraph nil)
           (let ((fill-column bigFillColumnVal))
