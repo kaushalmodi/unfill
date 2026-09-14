@@ -1,4 +1,4 @@
-;;; unfill.el --- The inverse of fill-paragraph and fill-region
+;;; unfill.el --- The inverse of fill-paragraph and fill-region  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2012 Steve Purcell.
 
